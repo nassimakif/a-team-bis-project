@@ -1,4 +1,4 @@
-#index.py lol
+#index.py
 
 from random import randint
 from math import ceil
@@ -17,13 +17,11 @@ def coupParLevel(level):
 # Retourne le nombre max pour le chiffre aleatoire
 def rangeParLevel(level):
     if level == 1:
-        nb_ordi = 10
+        return 10
     elif level == 2:
-        nb_ordi == 20
+        return 20
     elif level == 3:
-        nb_ordi == 30
-
-    return nb_ordi
+        return 30
 
 # Retourne le gain gagne
 def gainUser(coup, mise): 
@@ -35,7 +33,6 @@ def gainUser(coup, mise):
         gain = mise / 2
 
     return gain
-
 
 # Retour les regles du jeu
 def regle():
@@ -54,14 +51,14 @@ OU de continuer le jeu en passant au level supérieur.\n
 
     return str
 
-
 # Retourne la mise entree par l'utilisateur
-def mise(solde):
+def controle_mise(solde):
     argent_mise = True
     while argent_mise:
         mise = input("Le jeu commence, entrez votre mise : ")
         try:
             mise = int(mise)
+            
             if (mise < 1 or mise > solde): 
                 print("Le montant saisi n'est pas valide. Entrer SVP un montant entre 1 et 10 € : ")
             elif mise > solde:
@@ -75,12 +72,36 @@ def mise(solde):
     return mise
 
 # Retourne si le chiffre aleatoire a ete trouve
-# def nombreGagnant(nb_ordi, nb_user, nb_coup_user):
-    
+def nombreGagnant(nb_ordi, nb_user, nb_coup, nb_coup_user, level):
+    # Tant que le nb_user n'est pas egale au nb_ordi
+    while nb_ordi != nb_user:
+        print(nb_ordi)
+
+        if nb_user < nb_ordi: 
+            print("Votre nombre est trop petit !\n")
+        elif nb_user > nb_ordi: 
+            print("Votre nombre est trop grand ! \n")
+
+        nb_coup_user += 1
+        # Si le nombre du coup du joueur est egale au coup max
+        if nb_coup_user > nb_coup:
+            print("Vous avez perdu ! Mon nombre est %s !" %(nb_ordi))
+            nb_coup_user = 1
+            gain = 0
+            break
+        
+        nb_user = int(input("Alors mon nombre est : "))
+        
+    if nb_user == nb_ordi: 
+        gain = gainUser(nb_coup_user, mise)
+        print("Bingo %s, vous avez gagné en %d coups et vous avez emporté %d € !\n" %(name_user,nb_coup_user, gain))
+        level += 1
+        nb_coup_user = 1
+
+    list = {"gain" : gain, "level" : level}
+    return list
 
 level = 1
-nb_coup = coupParLevel(level)
-nb_ordi = randint(1, rangeParLevel(level))
 nb_coup_user = 1
 solde = 10
 gain = 0
@@ -91,41 +112,21 @@ print("Hello ", name_user, ", vous avez", solde, "euros. Très bien ! Installez 
 print(regle())
 
 while jeu:
+    nb_coup = coupParLevel(level)
+    print(rangeParLevel(level))
+    nb_ordi = randint(1, rangeParLevel(level))
+    print("nb_coup", nb_coup)
+    print("nb_ordi", nb_ordi)  
 
     # On regarde combien mise le joueur
-    mise = mise(solde)
+    mise = controle_mise(solde)
         
     solde -= mise
 
     nb_user = int(input("Alors mon nombre est : "))
-
-    # Tant que le nb_user n'est pas egale au nb_ordi
-    while nb_ordi != nb_user:
-        print(nb_ordi)
-
-        if nb_user == nb_ordi: 
-            gain = gainUser(nb_coup_user, mise)
-            print("Bingo René, vous avez gagné en %d coups et vous avez emporté %d € !\n" %(nb_coup_user, gain))
-            level += 1
-        elif nb_user < nb_ordi: 
-            print("Votre nombre est trop petit !\n")
-        elif nb_user > nb_ordi: 
-            print("Votre nombre est trop grand ! \n")
-
-        nb_coup_user += 1
-        # Si le nombre du coup du joueur est egale au coup max
-        if nb_coup_user > nb_coup:
-            print("Vous avez perdu ! Mon nombre est %s !" %(nb_ordi))
-            nb_coup_user = 0
-            break
-        
-        nb_user = int(input("Alors mon nombre est : "))
-
-        
-    if nb_user == nb_ordi: 
-        gain = gainUser(nb_coup_user, mise)
-        print("Bingo René, vous avez gagné en %d coups et vous avez emporté %d € !\n" %(nb_coup_user, gain))
-        level += 1
+    data = nombreGagnant(nb_ordi,nb_user, nb_coup, nb_coup_user, level)
+    gain = data['gain']
+    level = data['level']
 
     gain_total = solde + gain
     continuer_jeu = ''
@@ -137,8 +138,10 @@ while jeu:
             break
         elif continuer_jeu == 'N':
             print("Au revoir ! Vous finissez la partie avec %d €" %(gain_total))
-            break
             jeu = False
+            break
+            
+
 
     
 
