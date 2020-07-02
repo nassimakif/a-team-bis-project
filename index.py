@@ -1,4 +1,4 @@
-#index.py you
+#index.py lol
 
 from random import randint
 from math import ceil
