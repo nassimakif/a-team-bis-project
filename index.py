@@ -140,11 +140,4 @@ while jeu:
             print("Au revoir ! Vous finissez la partie avec %d €" %(gain_total))
             jeu = False
             break
-            
-
-
-    
-
-    
         
-    
