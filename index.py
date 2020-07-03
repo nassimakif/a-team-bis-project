@@ -2,6 +2,22 @@
 
 from random import randint
 from math import ceil
+from datetime import datetime
+import time
+from threading import Thread
+import sys
+import select
+
+class TimeoutExpired(Exception):
+    pass
+# Regarde si le timeout est depasse
+def input_with_timeout(prompt, timeout):
+    sys.stdout.write(prompt)
+    sys.stdout.flush()
+    ready, _, _ = select.select([sys.stdin], [],[], timeout)
+    if ready:
+        return sys.stdin.readline().rstrip('\n') # expect stdin to be line-buffered
+    raise TimeoutExpired
 
 # Retourne le nombre de coup max selon le niveau
 def coupParLevel(level):
@@ -17,13 +33,13 @@ def coupParLevel(level):
 # Retourne le nombre max pour le chiffre aleatoire
 def rangeParLevel(level):
     if level == 1:
-        nb_ordi = 10
+        range = 10
     elif level == 2:
-        nb_ordi == 20
+        range = 20
     elif level == 3:
-        nb_ordi == 30
+        range = 30
 
-    return nb_ordi
+    return range
 
 # Retourne le gain gagne
 def gainUser(coup, mise): 
@@ -35,7 +51,6 @@ def gainUser(coup, mise):
         gain = mise / 2
 
     return gain
-
 
 # Retour les regles du jeu
 def regle():
@@ -54,15 +69,15 @@ OU de continuer le jeu en passant au level supérieur.\n
 
     return str
 
-
 # Retourne la mise entree par l'utilisateur
-def mise(solde):
+def controle_mise(solde):
     argent_mise = True
     while argent_mise:
         mise = input("Le jeu commence, entrez votre mise : ")
         try:
             mise = int(mise)
-            if (mise < 1 or mise > solde): 
+            
+            if (mise < 1): 
                 print("Le montant saisi n'est pas valide. Entrer SVP un montant entre 1 et 10 € : ")
             elif mise > solde:
                 print("Erreur, votre mise est plus elevé que votre solde.\n")
@@ -75,73 +90,96 @@ def mise(solde):
     return mise
 
 # Retourne si le chiffre aleatoire a ete trouve
-# def nombreGagnant(nb_ordi, nb_user, nb_coup_user):
-    
-
-level = 1
-nb_coup = coupParLevel(level)
-nb_ordi = randint(1, rangeParLevel(level))
-nb_coup_user = 1
-solde = 10
-gain = 0
-name_user = input('Je suis Python. Quel est votre pseudo ? ')
-jeu = True
-
-print("Hello ", name_user, ", vous avez", solde, "euros. Très bien ! Installez vous SVP à la table de paris.")
-print(regle())
-
-while jeu:
-
-    # On regarde combien mise le joueur
-    mise = mise(solde)
-        
-    solde -= mise
+def nombreGagnant(nb_ordi, nb_coup, nb_coup_user, level):
 
     nb_user = int(input("Alors mon nombre est : "))
 
     # Tant que le nb_user n'est pas egale au nb_ordi
     while nb_ordi != nb_user:
-        print(nb_ordi)
-
-        if nb_user == nb_ordi: 
-            gain = gainUser(nb_coup_user, mise)
-            print("Bingo René, vous avez gagné en %d coups et vous avez emporté %d € !\n" %(nb_coup_user, gain))
-            level += 1
-        elif nb_user < nb_ordi: 
-            print("Votre nombre est trop petit !\n")
-        elif nb_user > nb_ordi: 
-            print("Votre nombre est trop grand ! \n")
-
         nb_coup_user += 1
+
+        if nb_user < nb_ordi: 
+            print("Votre nombre est trop petit !")
+            perdu = False
+        elif nb_user > nb_ordi: 
+            print("Votre nombre est trop grand ! ")
+            perdu = False
+
         # Si le nombre du coup du joueur est egale au coup max
         if nb_coup_user > nb_coup:
             print("Vous avez perdu ! Mon nombre est %s !" %(nb_ordi))
-            nb_coup_user = 0
+            nb_coup_user = 1
+            gain = 0
+            perdu = True
             break
         
         nb_user = int(input("Alors mon nombre est : "))
-
         
     if nb_user == nb_ordi: 
         gain = gainUser(nb_coup_user, mise)
-        print("Bingo René, vous avez gagné en %d coups et vous avez emporté %d € !\n" %(nb_coup_user, gain))
+        print("Bingo %s, vous avez gagné en %d coups et vous avez emporté %d € !\n" %(name_user,nb_coup_user, gain))
         level += 1
+        nb_coup_user = 1
+        perdu = False
+
+    list = {"gain" : gain, "level" : level, "perdu" : perdu}
+    return list
+
+level = 1
+nb_coup_user = 1
+solde = 10
+gain = 0
+prompt = ""
+name_user = input('Je suis Python. Quel est votre pseudo ? ')
+jeu = True
+perdu = False
+
+
+
+print("Hello ", name_user, ", vous avez", solde, "euros. Très bien ! Installez vous SVP à la table de paris.")
+print(regle())
+
+while jeu:
+    nb_coup = coupParLevel(level)
+    nb_ordi = randint(1, rangeParLevel(level))
+    print("nb_coup", nb_coup)
+    print("nb_ordi", nb_ordi)  
+
+    # On regarde combien mise le joueur
+    mise = controle_mise(solde)
+        
+    solde -= mise
+
+    data = nombreGagnant(nb_ordi, nb_coup, nb_coup_user, level)
+    gain = data['gain']
+    level = data['level']
+    perdu = data['perdu']
 
     gain_total = solde + gain
+
+    # Si l'on souhaite quitter la partie ou pas
     continuer_jeu = ''
-    continuer_jeu = input('Souhaitez-vous continuer la partie (O/N) ?')
-
-    while(continuer_jeu != 'O' or continuer_jeu != 'N'):
-        if continuer_jeu == 'O':
-            print('Super ! Vous passez au level %d' %(level))
-            break
-        elif continuer_jeu == 'N':
-            print("Au revoir ! Vous finissez la partie avec %d €" %(gain_total))
-            break
-            jeu = False
-
-    
-
-    
+    # continuer_jeu = input('Souhaitez-vous continuer la partie (O/N) ?')
+    try:
+        continuer_jeu = input_with_timeout('Souhaitez-vous continuer la partie (O/N) ? ', 10)
+    except TimeoutExpired:
+        print("Vous n'avez rien répondu. Vous finissez la partie avec %d €" %(gain_total))
+        sys.exit()
+        exit()
+    else:
+        while(continuer_jeu != 'O' or continuer_jeu != 'N'):
+            if continuer_jeu == 'O':
+                if (perdu):
+                    print('Vous continuez, super ! Vous restez au level %d' %(level))
+                    break
+                elif(not perdu):
+                    print('Super ! Vous passez au level %d' %(level))
+                    break
+            elif continuer_jeu == 'N':
+                print("Au revoir ! Vous finissez la partie avec %d €" %(gain_total))
+                jeu = False
+                break
+            else:
+                continuer_jeu = input("Je ne comprends pas votre réponse. Souhaitez-vous continuer la partie (O/N) ?")
+                continue
         
-    
