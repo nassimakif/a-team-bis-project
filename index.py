@@ -7,6 +7,7 @@ import time
 from threading import Thread
 import sys
 import select
+import json
 
 class TimeoutExpired(Exception):
     pass
@@ -125,6 +126,17 @@ def nombreGagnant(nb_ordi, nb_coup, nb_coup_user, level):
     list = {"gain" : gain, "level" : level, "perdu" : perdu}
     return list
 
+def statistic():
+    data = {}
+    data['people'] = []
+    data['people'].append({
+        'name': 'Scott',
+        'website': 'stackabuse.com',
+        'from': 'Nebraska'
+    })
+    with open('data.txt', 'w') as outfile:
+        json.dump(data, outfile)
+
 level = 1
 nb_coup_user = 1
 solde = 10
@@ -174,6 +186,7 @@ while jeu:
                     break
             elif continuer_jeu == 'N':
                 print("Au revoir ! Vous finissez la partie avec %d €" %(solde))
+                statistic()
                 jeu = False
                 break
             else:
