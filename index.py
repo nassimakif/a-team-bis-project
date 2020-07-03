@@ -15,9 +15,9 @@ class TimeoutExpired(Exception):
 def input_with_timeout(prompt, timeout):
     sys.stdout.write(prompt)
     sys.stdout.flush()
-    ready, _, _ = select.select([sys.stdin], [], [], timeout)
+    ready, _, _ = select.select([sys.stdin], [],[], timeout)
     if ready:
-        return sys.stdin.readline().rstrip('\n')  # expect stdin to be line-buffered
+        return sys.stdin.readline().rstrip('\n') # expect stdin to be line-buffered
     raise TimeoutExpired
 
 # Retourne le nombre de coup max selon le niveau
@@ -182,7 +182,7 @@ while jeu:
     continuer_jeu = ''
     # continuer_jeu = input('Souhaitez-vous continuer la partie (O/N) ?')
     try:
-        continuer_jeu = input('Souhaitez-vous continuer la partie (O/N) ? ')
+        continuer_jeu = input_with_timeout('Souhaitez-vous continuer la partie (O/N) ? ', 10)
     except TimeoutExpired:
         print("Vous n'avez rien répondu. Vous finissez la partie avec %d €" % (solde))
         sys.exit()
