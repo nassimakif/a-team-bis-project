@@ -136,10 +136,7 @@ while jeu:
         elif continuer_jeu == 'N':
             print("Au revoir ! Vous finissez la partie avec %d €" %(gain_total))
             break
-            jeu = False
-
-fodefohezo
-    
+            jeu = False    
 
     
         
