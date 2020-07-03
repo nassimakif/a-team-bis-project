@@ -130,14 +130,18 @@ def nombreGagnant(nb_ordi, nb_coup, nb_coup_user, level):
 
     # Tant que le nb_user n'est pas egale au nb_ordi
     while nb_ordi != nb_user:
-        nb_coup_user += 1
-
+        
         if nb_user < nb_ordi:
             print("Votre nombre est trop petit !")
             perdu = False
         elif nb_user > nb_ordi:
             print("Votre nombre est trop grand ! ")
             perdu = False
+
+        # S'il reste un essai
+        if nb_coup - nb_coup_user == 1:
+            print('Il vous reste une chance !')
+        nb_coup_user += 1
 
         # Si le nombre du coup du joueur est egale au coup max
         if nb_coup_user > nb_coup:
