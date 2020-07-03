@@ -9,7 +9,6 @@ import sys
 import select
 
 
-
 class TimeoutExpired(Exception):
     pass
 # Regarde si le timeout est depasse
@@ -50,17 +49,40 @@ def rangeParLevel(level):
     return range
 
 # Retourne le gain gagne
-
-
-def gainUser(coup, mise):
+def gainUser(coup, mise): 
     if coup == 1:
         gain = mise * 2
     if coup == 2:
-        gain = mise
-    if coup >= 3:
+        gain = mise 
+    if coup >= 3: 
         gain = mise / 2
 
-    return gain
+    return gain 
+
+
+# def gainUser(coup, mise, level):
+#     if coup == 1:
+#         if level == 1:
+#             gain = mise * 2
+#         elif level == 2:
+#             gain = mise * 3
+#         elif level == 3:
+#             gain = mise * 5
+#     if coup == 2:
+#         if level == 1:
+#             gain = mise
+#         elif level == 2:
+#             gain = mise * 1.25
+#         elif level == 3:
+#             gain = mise * 1.5
+#     if coup >= 3:
+#         if level == 1:
+#             gain = mise / 4
+#         elif level == 2:
+#             gain = mise / 3
+#         elif level == 3:
+#             gain = mise * 1
+#     return float(gain) 
 
 # Retour les regles du jeu
 
@@ -110,15 +132,15 @@ def controle_mise(solde):
 
             if (mise < 1):
                 print(
-                    "Le montant saisi n'est pas valide. Entrer SVP un montant entre 1 et 10 € : ")
+                    "Le montant saisi n'est pas valide. Entrer SVP un montant entre 1 et %d € :" % (solde))
             elif mise > solde:
                 print("Erreur, votre mise est plus elevé que votre solde.\n")
-                print("Entrez une mise inférieur à %d € :" % (solde))
+                print("Entrez une mise inférieur ou égale à %d € :" % (solde))
             else:
                 argent_mise = False
         except ValueError:
             print(
-                "Le montant saisi n'est pas valide. Entrer SVP un montant entre 1 et 10 € : ")
+                "Le montant saisi n'est pas valide. Entrer SVP un montant entre 1 et %d € : " % (solde))
 
     return mise
 
@@ -152,6 +174,7 @@ def nombreGagnant(nb_ordi, nb_coup, nb_coup_user, level):
 
     if nb_user == nb_ordi:
         gain = gainUser(nb_coup_user, mise)
+        # gain = gainUser(nb_coup_user, mise, level)
         print("Bingo %s, vous avez gagné en %d coups et vous avez emporté %d € !\n" % (
             name_user, nb_coup_user, gain))
         level += 1
