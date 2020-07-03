@@ -49,40 +49,40 @@ def rangeParLevel(level):
     return range
 
 # Retourne le gain gagne
-def gainUser(coup, mise): 
-    if coup == 1:
-        gain = mise * 2
-    if coup == 2:
-        gain = mise 
-    if coup >= 3: 
-        gain = mise / 2
-
-    return gain 
-
-
-# def gainUser(coup, mise, level):
+# def gainUser(coup, mise): 
 #     if coup == 1:
-#         if level == 1:
-#             gain = mise * 2
-#         elif level == 2:
-#             gain = mise * 3
-#         elif level == 3:
-#             gain = mise * 5
+#         gain = mise * 2
 #     if coup == 2:
-#         if level == 1:
-#             gain = mise
-#         elif level == 2:
-#             gain = mise * 1.25
-#         elif level == 3:
-#             gain = mise * 1.5
-#     if coup >= 3:
-#         if level == 1:
-#             gain = mise / 4
-#         elif level == 2:
-#             gain = mise / 3
-#         elif level == 3:
-#             gain = mise * 1
-#     return float(gain) 
+#         gain = mise 
+#     if coup >= 3: 
+#         gain = mise / 2
+
+#     return gain 
+
+
+def gainUser(coup, mise, level):
+    if coup == 1:
+        if level == 1:
+            gain = mise * 2
+        elif level == 2:
+            gain = mise * 3
+        elif level == 3:
+            gain = mise * 5
+    if coup == 2:
+        if level == 1:
+            gain = mise
+        elif level == 2:
+            gain = mise * 1.25
+        elif level == 3:
+            gain = mise * 1.5
+    if coup >= 3:
+        if level == 1:
+            gain = mise / 4
+        elif level == 2:
+            gain = mise / 3
+        elif level == 3:
+            gain = mise * 1
+    return float(gain) 
 
 # Retour les regles du jeu
 
@@ -112,7 +112,7 @@ def credit_solde():
         print('Veuillez entrez votre solde de départ')
         solde = input()
         try:
-            solde = int(solde)
+            solde = float(solde)
             if(solde < 1):
                 print(error)
             else:
@@ -124,23 +124,26 @@ def credit_solde():
 
 
 def controle_mise(solde):
+    mise_min = .01
     argent_mise = True
     while argent_mise:
         mise = input("Le jeu commence, entrez votre mise : ")
+        mise = float(mise)
+        print(mise)
         try:
-            mise = int(mise)
+            mise = float(mise)
+            
 
-            if (mise < 1):
+            if (mise < mise_min):
                 print(
-                    "Le montant saisi n'est pas valide. Entrer SVP un montant entre 1 et %d € :" % (solde))
+                    "Le montant saisi n'est pas valide. Entrer SVP un montant entre 1 et %.2f € :" % (solde))
             elif mise > solde:
                 print("Erreur, votre mise est plus elevé que votre solde.\n")
-                print("Entrez une mise inférieur ou égale à %d € :" % (solde))
+                print("Entrez une mise inférieur ou égale à %.2f € :" % (solde))
             else:
                 argent_mise = False
         except ValueError:
-            print(
-                "Le montant saisi n'est pas valide. Entrer SVP un montant entre 1 et %d € : " % (solde))
+            print("Le montant saisi n'est pas valide. Entrer SVP un montant entre 1 et %.2f € : " % (solde))
 
     return mise
 
@@ -173,9 +176,9 @@ def nombreGagnant(nb_ordi, nb_coup, nb_coup_user, level):
         nb_user = int(input("Alors mon nombre est : "))
 
     if nb_user == nb_ordi:
-        gain = gainUser(nb_coup_user, mise)
-        # gain = gainUser(nb_coup_user, mise, level)
-        print("Bingo %s, vous avez gagné en %d coups et vous avez emporté %d € !\n" % (
+        # gain = gainUser(nb_coup_user, mise)
+        gain = gainUser(nb_coup_user, mise, level)
+        print("Bingo %s, vous avez gagné en %d coups et vous avez emporté %.2f € !\n" % (
             name_user, nb_coup_user, gain))
         level += 1
         nb_coup_user = 1
@@ -197,7 +200,7 @@ perdu = False
 solde = credit_solde()
 
 
-print("Hello ", name_user, ", vous avez", solde, "euros. Très bien ! Installez vous SVP à la table de paris.")
+print("Hello %s vous avez %.2f euros. Très bien ! Installez vous SVP à la table de paris." % (name_user, solde))
 print(regle())
 
 while jeu:
@@ -237,7 +240,7 @@ while jeu:
                     print('Super ! Vous passez au level %d' % (level))
                     break
             elif continuer_jeu == 'N':
-                print("Au revoir ! Vous finissez la partie avec %d €" % (solde))
+                print("Au revoir ! Vous finissez la partie avec %.2f €" % (solde))
                 jeu = False
                 break
             else:
