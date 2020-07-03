@@ -139,7 +139,6 @@ while jeu:
             break
             jeu = False
 
-fodefohezo
     
 
     

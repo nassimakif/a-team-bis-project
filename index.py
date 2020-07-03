@@ -1,4 +1,4 @@
-#index.py
+# index.py
 
 from random import randint
 from math import ceil
@@ -8,22 +8,28 @@ from threading import Thread
 import sys
 import select
 
+
+
 class TimeoutExpired(Exception):
     pass
 # Regarde si le timeout est depasse
+
+
 def input_with_timeout(prompt, timeout):
     sys.stdout.write(prompt)
     sys.stdout.flush()
-    ready, _, _ = select.select([sys.stdin], [],[], timeout)
+    ready, _, _ = select.select([sys.stdin], [], [], timeout)
     if ready:
-        return sys.stdin.readline().rstrip('\n') # expect stdin to be line-buffered
+        return sys.stdin.readline().rstrip('\n')  # expect stdin to be line-buffered
     raise TimeoutExpired
 
 # Retourne le nombre de coup max selon le niveau
+
+
 def coupParLevel(level):
     if level == 1:
         nb_coup = 3
-    elif level == 2: 
+    elif level == 2:
         nb_coup = 5
     elif level == 3:
         nb_coup = 7
@@ -31,6 +37,8 @@ def coupParLevel(level):
     return nb_coup
 
 # Retourne le nombre max pour le chiffre aleatoire
+
+
 def rangeParLevel(level):
     if level == 1:
         range = 10
@@ -42,17 +50,21 @@ def rangeParLevel(level):
     return range
 
 # Retourne le gain gagne
-def gainUser(coup, mise): 
+
+
+def gainUser(coup, mise):
     if coup == 1:
         gain = mise * 2
     if coup == 2:
-        gain = mise 
-    if coup >= 3: 
+        gain = mise
+    if coup >= 3:
         gain = mise / 2
 
     return gain
 
 # Retour les regles du jeu
+
+
 def regle():
     str = """Je vous explique le principe du jeu :  \n
 Je viens de penser à un nombre entre 1 et 10. Devinez lequel ?\n 
@@ -70,26 +82,49 @@ OU de continuer le jeu en passant au level supérieur.\n
     return str
 
 # Retourne la mise entree par l'utilisateur
+
+def credit_solde():
+    error = "Le montant saisie n'est pas valide, solde minimum de 1€ requis"
+    argent_solde = True
+    while argent_solde:
+        print('Veuillez entrez votre solde de départ')
+        solde = input()
+        try:
+            solde = int(solde)
+            if(solde < 1):
+                print(error)
+            else:
+                argent_solde = False
+        except ValueError:
+            print(error)
+    return solde
+
+
+
 def controle_mise(solde):
     argent_mise = True
     while argent_mise:
         mise = input("Le jeu commence, entrez votre mise : ")
         try:
             mise = int(mise)
-            
-            if (mise < 1): 
-                print("Le montant saisi n'est pas valide. Entrer SVP un montant entre 1 et 10 € : ")
+
+            if (mise < 1):
+                print(
+                    "Le montant saisi n'est pas valide. Entrer SVP un montant entre 1 et 10 € : ")
             elif mise > solde:
                 print("Erreur, votre mise est plus elevé que votre solde.\n")
-                print("Entrez une mise inférieur à %d € :" %(solde))
+                print("Entrez une mise inférieur à %d € :" % (solde))
             else:
                 argent_mise = False
         except ValueError:
-            print("Le montant saisi n'est pas valide. Entrer SVP un montant entre 1 et 10 € : ")
+            print(
+                "Le montant saisi n'est pas valide. Entrer SVP un montant entre 1 et 10 € : ")
 
     return mise
 
 # Retourne si le chiffre aleatoire a ete trouve
+
+
 def nombreGagnant(nb_ordi, nb_coup, nb_coup_user, level):
 
     nb_user = int(input("Alors mon nombre est : "))
@@ -98,40 +133,46 @@ def nombreGagnant(nb_ordi, nb_coup, nb_coup_user, level):
     while nb_ordi != nb_user:
         nb_coup_user += 1
 
-        if nb_user < nb_ordi: 
+        if nb_user < nb_ordi:
             print("Votre nombre est trop petit !")
             perdu = False
-        elif nb_user > nb_ordi: 
+        elif nb_user > nb_ordi:
             print("Votre nombre est trop grand ! ")
             perdu = False
 
         # Si le nombre du coup du joueur est egale au coup max
         if nb_coup_user > nb_coup:
-            print("Vous avez perdu ! Mon nombre est %s !" %(nb_ordi))
+            print("Vous avez perdu ! Mon nombre est %s !" % (nb_ordi))
             nb_coup_user = 1
             gain = 0
             perdu = True
             break
-        
+
         nb_user = int(input("Alors mon nombre est : "))
-        
-    if nb_user == nb_ordi: 
+
+    if nb_user == nb_ordi:
         gain = gainUser(nb_coup_user, mise)
-        print("Bingo %s, vous avez gagné en %d coups et vous avez emporté %d € !\n" %(name_user,nb_coup_user, gain))
+        print("Bingo %s, vous avez gagné en %d coups et vous avez emporté %d € !\n" % (
+            name_user, nb_coup_user, gain))
         level += 1
         nb_coup_user = 1
         perdu = False
 
-    list = {"gain" : gain, "level" : level, "perdu" : perdu}
+    list = {"gain": gain, "level": level, "perdu": perdu}
     return list
+
 
 level = 1
 nb_coup_user = 1
-solde = 10
+
 gain = 0
 name_user = input('Je suis Python. Quel est votre pseudo ? ')
+
 jeu = True
 perdu = False
+
+solde = credit_solde()
+
 
 print("Hello ", name_user, ", vous avez", solde, "euros. Très bien ! Installez vous SVP à la table de paris.")
 print(regle())
@@ -140,11 +181,11 @@ while jeu:
     nb_coup = coupParLevel(level)
     nb_ordi = randint(1, rangeParLevel(level))
     print("nb_coup", nb_coup)
-    print("nb_ordi", nb_ordi)  
+    print("nb_ordi", nb_ordi)
 
     # On regarde combien mise le joueur
     mise = controle_mise(solde)
-        
+
     solde -= mise
 
     data = nombreGagnant(nb_ordi, nb_coup, nb_coup_user, level)
@@ -158,25 +199,25 @@ while jeu:
     continuer_jeu = ''
     # continuer_jeu = input('Souhaitez-vous continuer la partie (O/N) ?')
     try:
-        continuer_jeu = input_with_timeout('Souhaitez-vous continuer la partie (O/N) ? ', 10)
+        continuer_jeu = input('Souhaitez-vous continuer la partie (O/N) ? ')
     except TimeoutExpired:
-        print("Vous n'avez rien répondu. Vous finissez la partie avec %d €" %(solde))
+        print("Vous n'avez rien répondu. Vous finissez la partie avec %d €" % (solde))
         sys.exit()
         exit()
     else:
         while(continuer_jeu != 'O' or continuer_jeu != 'N'):
             if continuer_jeu == 'O':
                 if (perdu):
-                    print('Vous continuez, super ! Vous restez au level %d' %(level))
+                    print('Vous continuez, super ! Vous restez au level %d' % (level))
                     break
                 elif(not perdu):
-                    print('Super ! Vous passez au level %d' %(level))
+                    print('Super ! Vous passez au level %d' % (level))
                     break
             elif continuer_jeu == 'N':
-                print("Au revoir ! Vous finissez la partie avec %d €" %(solde))
+                print("Au revoir ! Vous finissez la partie avec %d €" % (solde))
                 jeu = False
                 break
             else:
-                continuer_jeu = input("Je ne comprends pas votre réponse. Souhaitez-vous continuer la partie (O/N) ?")
+                continuer_jeu = input(
+                    "Je ne comprends pas votre réponse. Souhaitez-vous continuer la partie (O/N) ?")
                 continue
-        
