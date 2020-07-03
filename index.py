@@ -194,29 +194,32 @@ while jeu:
 
     solde += gain
 
-    # Si l'on souhaite quitter la partie ou pas
-    continuer_jeu = ''
-    # continuer_jeu = input('Souhaitez-vous continuer la partie (O/N) ?')
-    try:
-        continuer_jeu = input('Souhaitez-vous continuer la partie (O/N) ? ')
-    except TimeoutExpired:
-        print("Vous n'avez rien répondu. Vous finissez la partie avec %.2f €" % (solde))
-        sys.exit()
-        exit()
-    else:
-        while(continuer_jeu != 'O' or continuer_jeu != 'N'):
-            if continuer_jeu == 'O':
-                if (perdu):
-                    print('Vous continuez, super ! Vous restez au level %d' % (level))
+    if level <= 3:
+        # Si l'on souhaite quitter la partie ou pas
+        continuer_jeu = ''
+        try:
+            continuer_jeu = input('Souhaitez-vous continuer la partie (O/N) ? ')
+        except TimeoutExpired:
+            print("Vous n'avez rien répondu. Vous finissez la partie avec %.2f €" % (solde))
+            sys.exit()
+            exit()
+        else:
+            while(continuer_jeu != 'O' or continuer_jeu != 'N'):
+                if continuer_jeu == 'O':
+                    if (perdu):
+                        print('Vous continuez, super ! Vous restez au level %d' % (level))
+                        break
+                    elif(not perdu):
+                        print('Super ! Vous passez au level %d' % (level))
+                        break
+                elif continuer_jeu == 'N':
+                    print("Au revoir ! Vous finissez la partie avec %.2f €" % (solde))
+                    jeu = False
                     break
-                elif(not perdu):
-                    print('Super ! Vous passez au level %d' % (level))
-                    break
-            elif continuer_jeu == 'N':
-                print("Au revoir ! Vous finissez la partie avec %.2f €" % (solde))
-                jeu = False
-                break
-            else:
-                continuer_jeu = input(
-                    "Je ne comprends pas votre réponse. Souhaitez-vous continuer la partie (O/N) ?")
-                continue
+                else:
+                    continuer_jeu = input(
+                        "Je ne comprends pas votre réponse. Souhaitez-vous continuer la partie (O/N) ?")
+                    continue
+    elif level > 3:
+        print("Bravo, vous avez gagné !")
+        jeu = False
