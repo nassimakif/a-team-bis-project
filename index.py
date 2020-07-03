@@ -8,13 +8,10 @@ from threading import Thread
 import sys
 import select
 
-
-
 class TimeoutExpired(Exception):
     pass
+
 # Regarde si le timeout est depasse
-
-
 def input_with_timeout(prompt, timeout):
     sys.stdout.write(prompt)
     sys.stdout.flush()
@@ -24,8 +21,6 @@ def input_with_timeout(prompt, timeout):
     raise TimeoutExpired
 
 # Retourne le nombre de coup max selon le niveau
-
-
 def coupParLevel(level):
     if level == 1:
         nb_coup = 3
@@ -37,8 +32,6 @@ def coupParLevel(level):
     return nb_coup
 
 # Retourne le nombre max pour le chiffre aleatoire
-
-
 def rangeParLevel(level):
     if level == 1:
         range = 10
@@ -50,8 +43,6 @@ def rangeParLevel(level):
     return range
 
 # Retourne le gain gagne
-
-
 def gainUser(coup, mise):
     if coup == 1:
         gain = mise * 2
@@ -63,8 +54,6 @@ def gainUser(coup, mise):
     return gain
 
 # Retour les regles du jeu
-
-
 def regle():
     str = """Je vous explique le principe du jeu :  \n
 Je viens de penser à un nombre entre 1 et 10. Devinez lequel ?\n 
@@ -81,13 +70,13 @@ OU de continuer le jeu en passant au level supérieur.\n
 
     return str
 
-# Retourne la mise entree par l'utilisateur
 
+# Retourne le solde entree par l'utilisateur
 def credit_solde():
-    error = "Le montant saisie n'est pas valide, solde minimum de 1€ requis"
+    error = "Le montant saisie n'est pas valide, solde minimum de 1€ requis : "
     argent_solde = True
     while argent_solde:
-        print('Veuillez entrez votre solde de départ')
+        print('Veuillez entrez votre solde de départ : ')
         solde = input()
         try:
             solde = int(solde)
@@ -100,7 +89,7 @@ def credit_solde():
     return solde
 
 
-
+# Retourne la mise entree par l'utilisateur
 def controle_mise(solde):
     argent_mise = True
     while argent_mise:
@@ -123,8 +112,6 @@ def controle_mise(solde):
     return mise
 
 # Retourne si le chiffre aleatoire a ete trouve
-
-
 def nombreGagnant(nb_ordi, nb_coup, nb_coup_user, level):
 
     nb_user = int(input("Alors mon nombre est : "))
@@ -164,15 +151,12 @@ def nombreGagnant(nb_ordi, nb_coup, nb_coup_user, level):
 
 level = 1
 nb_coup_user = 1
-
 gain = 0
 name_user = input('Je suis Python. Quel est votre pseudo ? ')
-
 jeu = True
 perdu = False
 
 solde = credit_solde()
-
 
 print("Hello ", name_user, ", vous avez", solde, "euros. Très bien ! Installez vous SVP à la table de paris.")
 print(regle())
@@ -180,7 +164,6 @@ print(regle())
 while jeu:
     nb_coup = coupParLevel(level)
     nb_ordi = randint(1, rangeParLevel(level))
-    print("nb_coup", nb_coup)
     print("nb_ordi", nb_ordi)
 
     # On regarde combien mise le joueur
