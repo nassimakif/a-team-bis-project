@@ -3,6 +3,21 @@
 from random import randint
 from math import ceil
 from datetime import datetime
+import time
+from threading import Thread
+import sys
+import select
+
+class TimeoutExpired(Exception):
+    pass
+# Regarde si le timeout est depasse
+def input_with_timeout(prompt, timeout):
+    sys.stdout.write(prompt)
+    sys.stdout.flush()
+    ready, _, _ = select.select([sys.stdin], [],[], timeout)
+    if ready:
+        return sys.stdin.readline().rstrip('\n') # expect stdin to be line-buffered
+    raise TimeoutExpired
 
 # Retourne le nombre de coup max selon le niveau
 def coupParLevel(level):
@@ -105,6 +120,7 @@ def nombreGagnant(nb_ordi, nb_coup, nb_coup_user, level):
         print("Bingo %s, vous avez gagné en %d coups et vous avez emporté %d € !\n" %(name_user,nb_coup_user, gain))
         level += 1
         nb_coup_user = 1
+        perdu = False
 
     list = {"gain" : gain, "level" : level, "perdu" : perdu}
     return list
@@ -113,8 +129,12 @@ level = 1
 nb_coup_user = 1
 solde = 10
 gain = 0
+prompt = ""
 name_user = input('Je suis Python. Quel est votre pseudo ? ')
 jeu = True
+perdu = False
+
+
 
 print("Hello ", name_user, ", vous avez", solde, "euros. Très bien ! Installez vous SVP à la table de paris.")
 print(regle())
@@ -139,20 +159,27 @@ while jeu:
 
     # Si l'on souhaite quitter la partie ou pas
     continuer_jeu = ''
-    continuer_jeu = input('Souhaitez-vous continuer la partie (O/N) ?')
-    while(continuer_jeu != 'O' or continuer_jeu != 'N'):
-        if continuer_jeu == 'O':
-            if (perdu):
-                print('Vous continuez, super ! Vous restez au level %d' %(level))
+    # continuer_jeu = input('Souhaitez-vous continuer la partie (O/N) ?')
+    try:
+        continuer_jeu = input_with_timeout('Souhaitez-vous continuer la partie (O/N) ? ', 10)
+    except TimeoutExpired:
+        print("Vous n'avez rien répondu. Vous finissez la partie avec %d €" %(gain_total))
+        sys.exit()
+        exit()
+    else:
+        while(continuer_jeu != 'O' or continuer_jeu != 'N'):
+            if continuer_jeu == 'O':
+                if (perdu):
+                    print('Vous continuez, super ! Vous restez au level %d' %(level))
+                    break
+                elif(not perdu):
+                    print('Super ! Vous passez au level %d' %(level))
+                    break
+            elif continuer_jeu == 'N':
+                print("Au revoir ! Vous finissez la partie avec %d €" %(gain_total))
+                jeu = False
                 break
-            elif(not perdu):
-                print('Super ! Vous passez au level %d' %(level))
-                break
-        elif continuer_jeu == 'N':
-            print("Au revoir ! Vous finissez la partie avec %d €" %(gain_total))
-            jeu = False
-            break
-        else:
-            continuer_jeu = input("Je ne comprends pas votre réponse. Souhaitez-vous continuer la partie (O/N) ?")
-            continue
+            else:
+                continuer_jeu = input("Je ne comprends pas votre réponse. Souhaitez-vous continuer la partie (O/N) ?")
+                continue
         
