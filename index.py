@@ -15,9 +15,9 @@ class TimeoutExpired(Exception):
 def input_with_timeout(prompt, timeout):
     sys.stdout.write(prompt)
     sys.stdout.flush()
-    ready, _, _ = select.select([sys.stdin], [],[], timeout)
+    ready, _, _ = select.select([sys.stdin], [], [], timeout)
     if ready:
-        return sys.stdin.readline().rstrip('\n') # expect stdin to be line-buffered
+        return sys.stdin.readline().rstrip('\n')  # expect stdin to be line-buffered
     raise TimeoutExpired
 
 # Retourne le nombre de coup max selon le niveau
@@ -43,15 +43,29 @@ def rangeParLevel(level):
     return range
 
 # Retourne le gain gagne
-def gainUser(coup, mise):
+def gainUser(coup, mise, level):
     if coup == 1:
-        gain = mise * 2
+        if level == 1:
+            gain = mise * 2
+        elif level == 2:
+            gain = mise * 3
+        elif level == 3:
+            gain = mise * 5
     if coup == 2:
-        gain = mise
+        if level == 1:
+            gain = mise
+        elif level == 2:
+            gain = mise * 1.25
+        elif level == 3:
+            gain = mise * 1.5
     if coup >= 3:
-        gain = mise / 2
-
-    return gain
+        if level == 1:
+            gain = mise / 4
+        elif level == 2:
+            gain = mise / 3
+        elif level == 3:
+            gain = mise * 1
+    return float(gain)     
 
 # Retour les regles du jeu
 def regle():
@@ -76,10 +90,9 @@ def credit_solde():
     error = "Le montant saisie n'est pas valide, solde minimum de 1€ requis : "
     argent_solde = True
     while argent_solde:
-        print('Veuillez entrez votre solde de départ : ')
-        solde = input()
+        solde = input("Veuillez entrez votre solde de départ : ")
         try:
-            solde = int(solde)
+            solde = float(solde)
             if(solde < 1):
                 print(error)
             else:
@@ -91,23 +104,22 @@ def credit_solde():
 
 # Retourne la mise entree par l'utilisateur
 def controle_mise(solde):
+    mise_min = 0.01
     argent_mise = True
     while argent_mise:
         mise = input("Le jeu commence, entrez votre mise : ")
         try:
-            mise = int(mise)
-
-            if (mise < 1):
+            mise = float(mise)
+            if (mise < mise_min):
                 print(
-                    "Le montant saisi n'est pas valide. Entrer SVP un montant entre 1 et 10 € : ")
+                    "Le montant saisi n'est pas valide. Entrer SVP un montant entre 1 et %.2f € :" % (solde))
             elif mise > solde:
                 print("Erreur, votre mise est plus elevé que votre solde.\n")
-                print("Entrez une mise inférieur à %d € :" % (solde))
+                print("Entrez une mise inférieur ou égale à %.2f € :" % (solde))
             else:
                 argent_mise = False
         except ValueError:
-            print(
-                "Le montant saisi n'est pas valide. Entrer SVP un montant entre 1 et 10 € : ")
+            print("Le montant saisi n'est pas valide. Entrer SVP un montant entre 1 et %.2f € : " % (solde))
 
     return mise
 
@@ -138,8 +150,8 @@ def nombreGagnant(nb_ordi, nb_coup, nb_coup_user, level):
         nb_user = int(input("Alors mon nombre est : "))
 
     if nb_user == nb_ordi:
-        gain = gainUser(nb_coup_user, mise)
-        print("Bingo %s, vous avez gagné en %d coups et vous avez emporté %d € !\n" % (
+        gain = gainUser(nb_coup_user, mise, level)
+        print("Bingo %s, vous avez gagné en %d coups et vous avez emporté %.2f € !\n" % (
             name_user, nb_coup_user, gain))
         level += 1
         nb_coup_user = 1
@@ -158,7 +170,7 @@ perdu = False
 
 solde = credit_solde()
 
-print("Hello ", name_user, ", vous avez", solde, "euros. Très bien ! Installez vous SVP à la table de paris.")
+print("Hello %s vous avez %.2f euros. Très bien ! Installez vous SVP à la table de paris." % (name_user, solde))
 print(regle())
 
 while jeu:
@@ -182,9 +194,9 @@ while jeu:
     continuer_jeu = ''
     # continuer_jeu = input('Souhaitez-vous continuer la partie (O/N) ?')
     try:
-        continuer_jeu = input_with_timeout('Souhaitez-vous continuer la partie (O/N) ? ', 10)
+        continuer_jeu = input('Souhaitez-vous continuer la partie (O/N) ? ')
     except TimeoutExpired:
-        print("Vous n'avez rien répondu. Vous finissez la partie avec %d €" % (solde))
+        print("Vous n'avez rien répondu. Vous finissez la partie avec %.2f €" % (solde))
         sys.exit()
         exit()
     else:
@@ -197,7 +209,7 @@ while jeu:
                     print('Super ! Vous passez au level %d' % (level))
                     break
             elif continuer_jeu == 'N':
-                print("Au revoir ! Vous finissez la partie avec %d €" % (solde))
+                print("Au revoir ! Vous finissez la partie avec %.2f €" % (solde))
                 jeu = False
                 break
             else:
