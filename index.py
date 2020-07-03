@@ -129,12 +129,9 @@ level = 1
 nb_coup_user = 1
 solde = 10
 gain = 0
-prompt = ""
 name_user = input('Je suis Python. Quel est votre pseudo ? ')
 jeu = True
 perdu = False
-
-
 
 print("Hello ", name_user, ", vous avez", solde, "euros. Très bien ! Installez vous SVP à la table de paris.")
 print(regle())
@@ -155,7 +152,7 @@ while jeu:
     level = data['level']
     perdu = data['perdu']
 
-    gain_total = solde + gain
+    solde += gain
 
     # Si l'on souhaite quitter la partie ou pas
     continuer_jeu = ''
@@ -163,7 +160,7 @@ while jeu:
     try:
         continuer_jeu = input_with_timeout('Souhaitez-vous continuer la partie (O/N) ? ', 10)
     except TimeoutExpired:
-        print("Vous n'avez rien répondu. Vous finissez la partie avec %d €" %(gain_total))
+        print("Vous n'avez rien répondu. Vous finissez la partie avec %d €" %(solde))
         sys.exit()
         exit()
     else:
@@ -176,7 +173,7 @@ while jeu:
                     print('Super ! Vous passez au level %d' %(level))
                     break
             elif continuer_jeu == 'N':
-                print("Au revoir ! Vous finissez la partie avec %d €" %(gain_total))
+                print("Au revoir ! Vous finissez la partie avec %d €" %(solde))
                 jeu = False
                 break
             else:
