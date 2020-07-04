@@ -1,12 +1,15 @@
 # index.py
 
 from random import randint
-from math import ceil
 from datetime import datetime
 import time
 from threading import Thread
 import sys
 import select
+import json
+import os.path
+from os import path
+from json.decoder import JSONDecodeError
 
 class TimeoutExpired(Exception):
     pass
@@ -69,14 +72,13 @@ def gainUser(coup, mise, level):
 
 # Retour les regles du jeu
 def regle():
-    str = """
-Je vous explique le principe du jeu :  \n
+    str = """Je vous explique le principe du jeu :  \n
 Je viens de penser à un nombre entre 1 et 10. Devinez lequel ?\n 
 Attention : vous avez le droit à trois essais ! \n 
 \t* Si vous devinez mon nombre dès le premier coup:
 \t- au niveau 1 vous doublez votre mise !!
 \t- au niveau 2 vous triplez votre mise !!!
-\t- au niveau 3 vous quintuplé votre mise !!!!!\n
+\t- au niveau 3 vous quintuplez votre mise !!!!!\n
 \t* Si vous le devinez au 2è coup
 \t- au niveau 1 vous gagnez exactement votre mise !
 \t- au niveau 2 vous gagnez votre mise + 25% de votre mise
@@ -93,8 +95,6 @@ OU de continuer le jeu en passant au level supérieur.\n
 """
 
     return str
-
-
 
 # Retourne le solde entree par l'utilisateur
 def credit_solde():
@@ -136,7 +136,6 @@ def controle_mise(solde):
 
 # Retourne si le chiffre aleatoire a ete trouve
 def nombreGagnant(nb_ordi, nb_coup, nb_coup_user, level):
-
     nb_user = int(input("Alors mon nombre est : "))
 
     # Tant que le nb_user n'est pas egale au nb_ordi
@@ -160,33 +159,125 @@ def nombreGagnant(nb_ordi, nb_coup, nb_coup_user, level):
             nb_coup_user = 1
             gain = 0
             perdu = True
+            stat_user = {}
+            if level == 1:
+                stat_user = {
+                    'mise' : mise,
+                    'gain' : gain,
+                    'gagne' : 0
+                }
+            elif level == 2:
+                stat_user = {
+                    'mise' : mise,
+                    'gain' : gain,
+                    'gagne' : 0
+            }
+            elif level == 3:
+                stat_user = {
+                    'mise' : mise,
+                    'gain' : gain,
+                    'gagne' : 0
+            }
             break
 
         nb_user = int(input("Alors mon nombre est : "))
 
     if nb_user == nb_ordi:
         gain = gainUser(nb_coup_user, mise, level)
-        print("Bingo %s, vous avez gagné en %d coups et vous avez emporté %.2f € !\n" % (
-            name_user, nb_coup_user, gain))
+        print("Bingo %s, vous avez gagné en %d coups et vous avez emporté %.2f € !\n" % (name_user, nb_coup_user, gain))
+        nb_coup_gagne = nb_coup_user
+
+        # On enregistre les donnees dans un dictionnaire
+        stat_user = {}
+        if level == 1:
+            stat_user = {
+                'nb_coup' : nb_coup_user,
+                'mise' : mise,
+                'gain' : gain,
+                'gagne' : 1
+            }
+        elif level == 2:
+            stat_user = {
+                'nb_coup' : nb_coup_user,
+                'mise' : mise,
+                'gain' : gain,
+                'gagne' : 1
+            }
+        elif level == 3:
+            stat_user = {
+                'nb_coup' : nb_coup_user,
+                'mise' : mise,
+                'gain' : gain,
+                'gagne' : 1
+            }
         level += 1
         nb_coup_user = 1
         perdu = False
 
-    list = {"gain": gain, "level": level, "perdu": perdu}
+    list = {"gain": gain, "level": level, "perdu": perdu, "stat" : stat_user}
     return list
 
+# Ajout de donnees d'user dans un fichier .json
+def statistic(donnees):
+    if path.exists("data.json"):
+        try:
+            with open('data.json', 'r+') as json_file:
+                try:
+                    data = json.load(json_file)
+                    data.append(donnees)
+                    json_file.seek(0)
+                    json.dump(data, json_file)
+                except JSONDecodeError as e:
+                    print("Erreur : ", e)
+        except IOError as i:
+            print("Erreur : ", i)
+    else: 
+        with open('data.json', 'w') as outfile:
+            json.dump(donnees, outfile)
 
+
+
+# Debut du jeu 
+
+# On enregistre la date d'execution du jeu
+now = datetime.now()
+date_time = now.strftime("%m/%d/%Y, %H:%M:%S")
+
+# On regarde si le fichier data.json existe, ce qui veut dire que l'user a deja joue
+if path.exists("data.json"):
+    donnees = {}
+    try:
+        with open('data.json', 'r+') as json_file:
+            try:
+                data = json.load(json_file)
+                # Recuperation de donnees
+                for d in data: 
+                    if "name" in d:
+                        name_user = d['name']
+                    if "jeu" in d: 
+                        nb_fois_jeu = d['jeu']
+                print("Rebonjour %s, Content de vous revoir au Casino, prêt pour un nouveau challenge !" %(name_user))
+                print("Voici statistiques, depuis la 1è fois ", data[0]['date'], " : ")
+            except JSONDecodeError as e:
+                print("Erreur : ", e)
+    except IOError as i:
+        print("Erreur : ", i)
+else:
+    name_user = input('Je suis Python. Quel est votre pseudo ? ')
+    print(regle())
+    donnees = []
+    
 level = 1
 nb_coup_user = 1
 gain = 0
-name_user = input('Je suis Python. Quel est votre pseudo ? ')
 jeu = True
 perdu = False
 
+# Demande du solde du joueur
 solde = credit_solde()
+solde_debut = solde
+print("Vous avez %.2f euros. Très bien ! Installez vous SVP à la table de paris." % (solde))
 
-print("Hello %s vous avez %.2f euros. Très bien ! Installez vous SVP à la table de paris." % (name_user, solde))
-print(regle())
 
 while jeu:
     nb_coup = coupParLevel(level)
@@ -198,13 +289,44 @@ while jeu:
 
     solde -= mise
 
+    # Fonction qui regarde si le nb a ete trouve
     data = nombreGagnant(nb_ordi, nb_coup, nb_coup_user, level)
     gain = data['gain']
     level = data['level']
     perdu = data['perdu']
-
     solde += gain
 
+    resultat_partie = data['stat']
+
+    if level - 1 == 1:
+        resultat_level_1 = resultat_partie
+        partie = [{'level_1' : resultat_level_1}]
+
+    if level - 1 == 2 : 
+        resultat_level_2 = resultat_partie
+        partie = [{'level_1' : resultat_level_1}, {'level_2' : resultat_level_2}]
+
+    if level - 1 == 3 : 
+        resultat_level_3 = resultat_partie
+        partie = [{'level_1' : resultat_level_1}, {'level_2' : resultat_level_2}, {'level_3' : resultat_level_3}]
+
+    if path.exists("data.json"):
+        donnees = {
+                'name' : name_user,
+                'date' : date_time,
+                'jeu' : nb_fois_jeu + 1 ,
+                'solde' : solde_debut,
+                'partie' : partie
+            }  
+    else:
+        donnees.append({
+            'name' : name_user,
+            'date' : date_time,
+            'jeu' : 1,
+            'solde' : solde_debut,
+            'partie' : partie
+        })
+          
     if level <= 3:
         # Si l'on souhaite quitter la partie ou pas
         continuer_jeu = ''
@@ -217,14 +339,15 @@ while jeu:
         else:
             while(continuer_jeu != 'O' or continuer_jeu != 'N'):
                 if continuer_jeu == 'O':
-                    if (perdu):
+                    if perdu:
                         print('Vous continuez, super ! Vous restez au level %d' % (level))
                         break
-                    elif(not perdu):
+                    elif not perdu:
                         print('Super ! Vous passez au level %d' % (level))
                         break
                 elif continuer_jeu == 'N':
                     print("Au revoir ! Vous finissez la partie avec %.2f €" % (solde))
+                    statistic(donnees)                    
                     jeu = False
                     break
                 else:
@@ -233,4 +356,5 @@ while jeu:
                     continue
     elif level > 3:
         print("Bravo, vous avez gagné !")
+        statistic(donnees) 
         jeu = False
