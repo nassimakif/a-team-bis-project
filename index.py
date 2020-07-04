@@ -256,8 +256,6 @@ if path.exists("data.json"):
                         name_user = d['name']
                     if "jeu" in d: 
                         nb_fois_jeu = d['jeu']
-                    # if "date" in d:
-
                 print("Rebonjour %s, Content de vous revoir au Casino, prêt pour un nouveau challenge !" %(name_user))
                 print("Voici statistiques, depuis la 1è fois ", data[0]['date'], " : ")
             except JSONDecodeError as e:
@@ -300,7 +298,6 @@ while jeu:
 
     resultat_partie = data['stat']
 
-    # if perdu or not perdu:
     if level - 1 == 1:
         resultat_level_1 = resultat_partie
         partie = [{'level_1' : resultat_level_1}]
@@ -312,7 +309,6 @@ while jeu:
     if level - 1 == 3 : 
         resultat_level_3 = resultat_partie
         partie = [{'level_1' : resultat_level_1}, {'level_2' : resultat_level_2}, {'level_3' : resultat_level_3}]
-
 
     if path.exists("data.json"):
         donnees = {
