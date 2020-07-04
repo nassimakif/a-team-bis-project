@@ -96,7 +96,6 @@ OU de continuer le jeu en passant au level supérieur.\n
 
     return str
 
-
 # Retourne le solde entree par l'utilisateur
 def credit_solde():
     error = "Le montant saisie n'est pas valide, solde minimum de 1€ requis : "
@@ -160,6 +159,25 @@ def nombreGagnant(nb_ordi, nb_coup, nb_coup_user, level):
             nb_coup_user = 1
             gain = 0
             perdu = True
+            stat_user = {}
+            if level == 1:
+                stat_user = {
+                    'mise' : mise,
+                    'gain' : gain,
+                    'gagne' : 0
+                }
+            elif level == 2:
+                stat_user = {
+                    'mise' : mise,
+                    'gain' : gain,
+                    'gagne' : 0
+            }
+            elif level == 3:
+                stat_user = {
+                    'mise' : mise,
+                    'gain' : gain,
+                    'gagne' : 0
+            }
             break
 
         nb_user = int(input("Alors mon nombre est : "))
@@ -168,44 +186,39 @@ def nombreGagnant(nb_ordi, nb_coup, nb_coup_user, level):
         gain = gainUser(nb_coup_user, mise, level)
         print("Bingo %s, vous avez gagné en %d coups et vous avez emporté %.2f € !\n" % (name_user, nb_coup_user, gain))
         nb_coup_gagne = nb_coup_user
+
         # On enregistre les donnees dans un dictionnaire
         stat_user = {}
-        # stat_user['partie'] = []
         if level == 1:
-            stat_user = ({
-                'level_1' : level,
+            stat_user = {
                 'nb_coup' : nb_coup_user,
                 'mise' : mise,
                 'gain' : gain,
-                'partie' : 1
-            })
+                'gagne' : 1
+            }
         elif level == 2:
             stat_user = {
-                'level_2' : level,
                 'nb_coup' : nb_coup_user,
                 'mise' : mise,
                 'gain' : gain,
-                'partie' : 1
+                'gagne' : 1
             }
         elif level == 3:
-            stat_user={
-                'level_3' : level,
+            stat_user = {
                 'nb_coup' : nb_coup_user,
                 'mise' : mise,
                 'gain' : gain,
-                'partie' : 1
-            }      
-
+                'gagne' : 1
+            }
         level += 1
         nb_coup_user = 1
         perdu = False
 
-    list = {"gain": gain, "level": level, "perdu": perdu, "data" : stat_user}
+    list = {"gain": gain, "level": level, "perdu": perdu, "stat" : stat_user}
     return list
 
 # Ajout de donnees d'user dans un fichier .json
 def statistic(donnees):
-
     if path.exists("data.json"):
         try:
             with open('data.json', 'r+') as json_file:
@@ -219,8 +232,9 @@ def statistic(donnees):
         except IOError as i:
             print("Erreur : ", i)
     else: 
-        with open('data.json', 'a+') as outfile:
+        with open('data.json', 'w') as outfile:
             json.dump(donnees, outfile)
+
 
 
 # Debut du jeu 
@@ -236,16 +250,12 @@ if path.exists("data.json"):
         with open('data.json', 'r+') as json_file:
             try:
                 data = json.load(json_file)
+                # Recuperation de donnees
                 for d in data: 
                     if "name" in d:
                         name_user = d['name']
-                    
                     if "jeu" in d: 
                         jeu = d['jeu']
-                
-                # Recuperation de donnees
-                donnees = {"name": name_user, "date" : date_time, "jeu": jeu + 1}
-
                 print("Rebonjour %s, Content de vous revoir au Casino, prêt pour un nouveau challenge !" %(name_user))
             except JSONDecodeError as e:
                 print("Erreur : ", e)
@@ -256,22 +266,17 @@ else:
     print(regle())
     donnees = []
     
-
-    
-
-
 level = 1
 nb_coup_user = 1
 gain = 0
 jeu = True
 perdu = False
 
-
-
 # Demande du solde du joueur
 solde = credit_solde()
 solde_debut = solde
 print("Vous avez %.2f euros. Très bien ! Installez vous SVP à la table de paris." % (solde))
+
 
 while jeu:
     nb_coup = coupParLevel(level)
@@ -290,27 +295,39 @@ while jeu:
     perdu = data['perdu']
     solde += gain
 
-    resultat_partie = data['data']
+    resultat_partie = data['stat']
 
-    print(resultat_partie)
+    # if perdu or not perdu:
+    if level - 1 == 1:
+        resultat_level_1 = resultat_partie
+        partie = [{'level1' : resultat_level_1}]
+
+    if level - 1 == 2 : 
+        resultat_level_2 = resultat_partie
+        partie = [{'level1' : resultat_level_1}, {'level2' : resultat_level_2}]
+
+    if level - 1 == 3 : 
+        resultat_level_3 = resultat_partie
+        partie = [{'level1' : resultat_level_1}, {'level2' : resultat_level_2}, {'level3' : resultat_level_3}]
+
+
     if path.exists("data.json"):
         donnees = {
                 'name' : name_user,
                 'date' : date_time,
                 'jeu' : 1,
-                'solde' : solde_debut
-            }
+                'solde' : solde_debut,
+                'partie' : partie
+            }  
     else:
         donnees.append({
             'name' : name_user,
             'date' : date_time,
             'jeu' : 1,
-            'solde' : solde_debut
+            'solde' : solde_debut,
+            'partie' : partie
         })
-
-
-
-
+          
     if level <= 3:
         # Si l'on souhaite quitter la partie ou pas
         continuer_jeu = ''
@@ -323,10 +340,10 @@ while jeu:
         else:
             while(continuer_jeu != 'O' or continuer_jeu != 'N'):
                 if continuer_jeu == 'O':
-                    if (perdu):
+                    if perdu:
                         print('Vous continuez, super ! Vous restez au level %d' % (level))
                         break
-                    elif(not perdu):
+                    elif not perdu:
                         print('Super ! Vous passez au level %d' % (level))
                         break
                 elif continuer_jeu == 'N':
