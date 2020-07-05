@@ -136,17 +136,19 @@ def controle_mise(solde):
 
 # Retourne si le chiffre aleatoire a ete trouve
 def nombreGagnant(nb_ordi, nb_coup, nb_coup_user, level):
-    nb_user = int(input("Alors mon nombre est : "))
 
     # Tant que le nb_user n'est pas egale au nb_ordi
-    while nb_ordi != nb_user:
-        
-        if nb_user < nb_ordi:
-            print("Votre nombre est trop petit !")
-            perdu = False
-        elif nb_user > nb_ordi:
-            print("Votre nombre est trop grand ! ")
-            perdu = False
+    while True:
+        try:
+            nb_user = int(input("Alors mon nombre est : "))
+            if nb_user < nb_ordi:
+                print("Votre nombre est trop petit !")
+                perdu = False
+            elif nb_user > nb_ordi:
+                print("Votre nombre est trop grand ! ")
+                perdu = False
+        except ValueError:
+            print("Le montant saisi n'est pas valide. Entrer SVP un montant entre 1 et %.2f € : " % (solde))
 
         # S'il reste un essai
         if nb_coup - nb_coup_user == 1:
@@ -179,8 +181,6 @@ def nombreGagnant(nb_ordi, nb_coup, nb_coup_user, level):
                     'gagne' : 0
             }
             break
-
-        nb_user = int(input("Alors mon nombre est : "))
 
     if nb_user == nb_ordi:
         gain = gainUser(nb_coup_user, mise, level)
