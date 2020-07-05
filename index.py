@@ -104,7 +104,7 @@ def credit_solde():
         solde = input("Veuillez entrez votre solde de départ : ")
         try:
             solde = float(solde)
-            if(solde < 1):
+            if solde < 1:
                 print(error)
             else:
                 argent_solde = False
@@ -136,22 +136,22 @@ def controle_mise(solde):
 
 # Retourne si le chiffre aleatoire a ete trouve
 def nombreGagnant(nb_ordi, nb_coup, nb_coup_user, level):
-    nb_user = int(input("Alors mon nombre est : "))
 
     # Tant que le nb_user n'est pas egale au nb_ordi
-    while nb_ordi != nb_user:
-        
+    while True:
+        # On verifie si l'user a bien tape un nombre
+        try:
+            nb_user = int(input("Alors mon nombre est : "))
+        except ValueError:
+            print("Je n'ai pas compris ce que vous avez deviné")
+            continue
+
         if nb_user < nb_ordi:
             print("Votre nombre est trop petit !")
             perdu = False
         elif nb_user > nb_ordi:
             print("Votre nombre est trop grand ! ")
             perdu = False
-
-        # S'il reste un essai
-        if nb_coup - nb_coup_user == 1:
-            print('Il vous reste une chance !')
-        nb_coup_user += 1
 
         # Si le nombre du coup du joueur est egale au coup max
         if nb_coup_user > nb_coup:
@@ -180,40 +180,44 @@ def nombreGagnant(nb_ordi, nb_coup, nb_coup_user, level):
             }
             break
 
-        nb_user = int(input("Alors mon nombre est : "))
+        if nb_user == nb_ordi:
+            gain = gainUser(nb_coup_user, mise, level)
+            print("Bingo %s, vous avez gagné en %d coups et vous avez emporté %.2f € !\n" % (name_user, nb_coup_user, gain))
+            nb_coup_gagne = nb_coup_user
 
-    if nb_user == nb_ordi:
-        gain = gainUser(nb_coup_user, mise, level)
-        print("Bingo %s, vous avez gagné en %d coups et vous avez emporté %.2f € !\n" % (name_user, nb_coup_user, gain))
-        nb_coup_gagne = nb_coup_user
+            # On enregistre les donnees dans un dictionnaire
+            stat_user = {}
+            if level == 1:
+                stat_user = {
+                    'nb_coup' : nb_coup_user,
+                    'mise' : mise,
+                    'gain' : gain,
+                    'gagne' : 1
+                }
+            elif level == 2:
+                stat_user = {
+                    'nb_coup' : nb_coup_user,
+                    'mise' : mise,
+                    'gain' : gain,
+                    'gagne' : 1
+                }
+            elif level == 3:
+                stat_user = {
+                    'nb_coup' : nb_coup_user,
+                    'mise' : mise,
+                    'gain' : gain,
+                    'gagne' : 1
+                }
+            level += 1
+            nb_coup_user = 1
+            perdu = False
+            break
 
-        # On enregistre les donnees dans un dictionnaire
-        stat_user = {}
-        if level == 1:
-            stat_user = {
-                'nb_coup' : nb_coup_user,
-                'mise' : mise,
-                'gain' : gain,
-                'gagne' : 1
-            }
-        elif level == 2:
-            stat_user = {
-                'nb_coup' : nb_coup_user,
-                'mise' : mise,
-                'gain' : gain,
-                'gagne' : 1
-            }
-        elif level == 3:
-            stat_user = {
-                'nb_coup' : nb_coup_user,
-                'mise' : mise,
-                'gain' : gain,
-                'gagne' : 1
-            }
-        level += 1
-        nb_coup_user = 1
-        perdu = False
-
+        # S'il reste un essai
+        if nb_coup - nb_coup_user == 1:
+            print('Il vous reste une chance !')
+        nb_coup_user += 1
+        
     list = {"gain": gain, "level": level, "perdu": perdu, "stat" : stat_user}
     return list
 
@@ -238,6 +242,30 @@ def statistic(donnees):
 
 
 # Debut du jeu 
+print("""\
+ /=======================WELCOME TO FABULOUS=========================\   
+|                                                                    |
+|   $$$$$$$\ $$\     $$\ $$$$$$$$\ $$\   $$\  $$$$$$\  $$\   $$\     | 
+|   $$  __$$\\$$\   $$  |\__ $$  __|$$ |  $$ |$$  __$$\ $$$\  $$ |    |
+|   $$ |  $$ |\$$\ $$  /    $$ |   $$ |  $$ |$$ /  $$ |$$$$\ $$ |    |
+|   $$$$$$$  | \$$$$  /     $$ |   $$$$$$$$ |$$ |  $$ |$$ $$\$$ |    |
+|   $$  ____/   \$$  /      $$ |   $$  __$$ |$$ |  $$ |$$ \$$$$ |    |
+|   $$ |         $$ |       $$ |   $$ |  $$ |$$ |  $$ |$$ |\$$$ |    |
+|   $$ |         $$ |       $$ |   $$ |  $$ | $$$$$$  |$$ | \$$ |    |
+|   \__|         \__|       \__|   \__|  \__| \______/ \__|  \__|    |
+|                                                                    |                   
+|                                                                    | 
+|    $$$$$$\   $$$$$$\   $$$$$$\  $$$$$$\ $$\   $$\  $$$$$$\         |   
+|   $$  __$$\ $$  __$$\ $$  __$$\ \_$$  _|$$$\  $$ |$$  __$$\        |   
+|   $$ /  \__|$$ /  $$ |$$ /  \__|  $$ |  $$$$\ $$ |$$ /  $$ |       |  
+|   $$ |      $$$$$$$$ |\$$$$$$\    $$ |  $$ $$\$$ |$$ |  $$ |       | 
+|   $$ |      $$  __$$ | \____$$\   $$ |  $$ \$$$$ |$$ |  $$ |       | 
+|   $$ |  $$\ $$ |  $$ |$$\   $$ |  $$ |  $$ |\$$$ |$$ |  $$ |       |
+|   \$$$$$$  |$$ |  $$ |\$$$$$$  |$$$$$$\ $$ | \$$ | $$$$$$  |       |
+|   \______/ \__|  \__| \______/ \______|\__|  \__| \______/         |
+|                                                                    |
+\====================================================================/
+""")
 
 # On enregistre la date d'execution du jeu
 now = datetime.now()
@@ -246,6 +274,8 @@ date_time = now.strftime("%m/%d/%Y, %H:%M:%S")
 # On regarde si le fichier data.json existe, ce qui veut dire que l'user a deja joue
 if path.exists("data.json"):
     donnees = {}
+    mise_max = 0
+    gain_max = 0
     try:
         with open('data.json', 'r+') as json_file:
             try:
@@ -256,8 +286,24 @@ if path.exists("data.json"):
                         name_user = d['name']
                     if "jeu" in d: 
                         nb_fois_jeu = d['jeu']
+                    if "partie" in d:
+                        for partie in d['partie']:
+                            # print(partie)
+                            if "level_1" in partie:
+                                # print(partie['level_1'])
+                                # print("mise ", partie['level_1']['mise'])
+                                if partie['level_1']['mise'] > mise_max:
+                                    mise_max = partie['level_1']['mise']
+                                if partie['level_1']['gain'] > gain_max:
+                                    gain_max = partie['level_1']['gain']
+                                
+                        
                 print("Rebonjour %s, Content de vous revoir au Casino, prêt pour un nouveau challenge !" %(name_user))
-                print("Voici statistiques, depuis la 1è fois ", data[0]['date'], " : ")
+                print("Voici les statistiques, depuis la 1è fois ", data[0]['date'], " : ")
+                print("\t - Vous avez deja joué à ce jeu : %d fois" %(nb_fois_jeu))
+                print("\t - Votre mise max est de  : %d euros" %(mise_max))
+                print("\t - Votre gain max est de  : %d euros" %(gain_max))
+
             except JSONDecodeError as e:
                 print("Erreur : ", e)
     except IOError as i:
@@ -281,13 +327,14 @@ print("Vous avez %.2f euros. Très bien ! Installez vous SVP à la table de pari
 
 while jeu:
     nb_coup = coupParLevel(level)
-    nb_ordi = randint(1, rangeParLevel(level))
+    nb_ordi = randint(1, 10)
     print("nb_ordi", nb_ordi)
 
     # On regarde combien mise le joueur
     mise = controle_mise(solde)
 
     solde -= mise
+    
 
     # Fonction qui regarde si le nb a ete trouve
     data = nombreGagnant(nb_ordi, nb_coup, nb_coup_user, level)
@@ -298,7 +345,7 @@ while jeu:
 
     resultat_partie = data['stat']
 
-    if level - 1 == 1:
+    if level - 1 == 1 or level - 1 == 0:
         resultat_level_1 = resultat_partie
         partie = [{'level_1' : resultat_level_1}]
 
@@ -310,51 +357,71 @@ while jeu:
         resultat_level_3 = resultat_partie
         partie = [{'level_1' : resultat_level_1}, {'level_2' : resultat_level_2}, {'level_3' : resultat_level_3}]
 
-    if path.exists("data.json"):
-        donnees = {
+    
+          
+    if level <= 3:
+        if solde <= 0:
+            print("Vous êtes fauchés, il est temps de partir ...!")
+            exit()
+                            
+        # Si l'on souhaite quitter la partie ou pas
+        continuer_jeu = ''
+        try:
+            continuer_jeu = input_with_timeout('Souhaitez-vous continuer la partie (O/N) ? ', 10)
+        except TimeoutExpired:
+            print("Vous n'avez rien répondu. Vous finissez la partie avec %.2f €" % (solde))
+            sys.exit()
+            exit()
+        else:
+            while True:
+                if continuer_jeu == 'O' or continuer_jeu == 'o':
+                    if perdu:
+                        print('Vous continuez ! Vous restez au level %d' % (level))
+                        break
+                    elif not perdu:
+                        print('Super ! Vous passez au level %d' % (level))
+                        break
+                elif continuer_jeu == 'N' or continuer_jeu == 'n':
+                    print("Au revoir ! Vous finissez la partie avec %.2f €" % (solde))
+                    if path.exists("data.json"):
+                        donnees = {
+                            'name' : name_user,
+                            'date' : date_time,
+                            'jeu' : nb_fois_jeu + 1 ,
+                            'solde' : solde_debut,
+                            'partie' : partie
+                        }  
+                    else:
+                        donnees.append({
+                            'name' : name_user,
+                            'date' : date_time,
+                            'jeu' : 1,
+                            'solde' : solde_debut,
+                            'partie' : partie
+                        })
+                    statistic(donnees)                    
+                    jeu = False
+                    break
+                else:
+                    continuer_jeu = input_with_timeout("Je ne comprends pas votre réponse. Souhaitez-vous continuer la partie (O/N) ?", 10)
+                    continue
+    elif level > 3:
+        print("Bravo, vous avez gagné !")
+        if path.exists("data.json"):
+            donnees = {
                 'name' : name_user,
                 'date' : date_time,
                 'jeu' : nb_fois_jeu + 1 ,
                 'solde' : solde_debut,
                 'partie' : partie
             }  
-    else:
-        donnees.append({
-            'name' : name_user,
-            'date' : date_time,
-            'jeu' : 1,
-            'solde' : solde_debut,
-            'partie' : partie
-        })
-          
-    if level <= 3:
-        # Si l'on souhaite quitter la partie ou pas
-        continuer_jeu = ''
-        try:
-            continuer_jeu = input('Souhaitez-vous continuer la partie (O/N) ? ')
-        except TimeoutExpired:
-            print("Vous n'avez rien répondu. Vous finissez la partie avec %.2f €" % (solde))
-            sys.exit()
-            exit()
         else:
-            while(continuer_jeu != 'O' or continuer_jeu != 'N'):
-                if continuer_jeu == 'O':
-                    if perdu:
-                        print('Vous continuez, super ! Vous restez au level %d' % (level))
-                        break
-                    elif not perdu:
-                        print('Super ! Vous passez au level %d' % (level))
-                        break
-                elif continuer_jeu == 'N':
-                    print("Au revoir ! Vous finissez la partie avec %.2f €" % (solde))
-                    statistic(donnees)                    
-                    jeu = False
-                    break
-                else:
-                    continuer_jeu = input(
-                        "Je ne comprends pas votre réponse. Souhaitez-vous continuer la partie (O/N) ?")
-                    continue
-    elif level > 3:
-        print("Bravo, vous avez gagné !")
+            donnees.append({
+                'name' : name_user,
+                'date' : date_time,
+                'jeu' : 1,
+                'solde' : solde_debut,
+                'partie' : partie
+            })
         statistic(donnees) 
         jeu = False
