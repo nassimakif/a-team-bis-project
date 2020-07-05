@@ -344,14 +344,14 @@ while jeu:
             exit()
         else:
             while True:
-                if continuer_jeu == 'O' or 'o':
+                if continuer_jeu == 'O' or continuer_jeu == 'o':
                     if perdu:
                         print('Vous continuez, super ! Vous restez au level %d' % (level))
                         break
                     elif not perdu:
                         print('Super ! Vous passez au level %d' % (level))
                         break
-                elif continuer_jeu == 'N' or 'n':
+                elif continuer_jeu == 'N' or continuer_jeu == 'n':
                     print("Au revoir ! Vous finissez la partie avec %.2f €" % (solde))
                     statistic(donnees)                    
                     jeu = False
