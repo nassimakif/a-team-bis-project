@@ -34,14 +34,14 @@ def coupParLevel(level):
 
     return nb_coup
 
-# Retourne le nombre max pour le chiffre aleatoire
+# # Retourne le nombre max pour le chiffre aleatoire
 def rangeParLevel(level):
     if level == 1:
-        range = 10
+        range = random.randint(10)
     elif level == 2:
-        range = 20
+        range = random.randint(20)
     elif level == 3:
-        range = 30
+        range = random.randint(30)
 
     return range
 
@@ -281,7 +281,7 @@ print("Vous avez %.2f euros. Très bien ! Installez vous SVP à la table de pari
 
 while jeu:
     nb_coup = coupParLevel(level)
-    nb_ordi = randint(1, rangeParLevel(level))
+    nb_ordi = randint(1, 10)
     print("nb_ordi", nb_ordi)
 
     # On regarde combien mise le joueur
@@ -298,7 +298,7 @@ while jeu:
 
     resultat_partie = data['stat']
 
-    if level - 1 == 1:
+    if level - 1 == 1 or level - 1 == 0:
         resultat_level_1 = resultat_partie
         partie = [{'level_1' : resultat_level_1}]
 
