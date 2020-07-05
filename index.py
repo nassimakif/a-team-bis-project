@@ -153,33 +153,6 @@ def nombreGagnant(nb_ordi, nb_coup, nb_coup_user, level):
             print("Votre nombre est trop grand ! ")
             perdu = False
 
-        # Si le nombre du coup du joueur est egale au coup max
-        if nb_coup_user > nb_coup:
-            print("Vous avez perdu ! Mon nombre est %s !" % (nb_ordi))
-            nb_coup_user = 1
-            gain = 0
-            perdu = True
-            stat_user = {}
-            if level == 1:
-                stat_user = {
-                    'mise' : mise,
-                    'gain' : gain,
-                    'gagne' : 0
-                }
-            elif level == 2:
-                stat_user = {
-                    'mise' : mise,
-                    'gain' : gain,
-                    'gagne' : 0
-            }
-            elif level == 3:
-                stat_user = {
-                    'mise' : mise,
-                    'gain' : gain,
-                    'gagne' : 0
-            }
-            break
-
         if nb_user == nb_ordi:
             gain = gainUser(nb_coup_user, mise, level)
             print("Bingo %s, vous avez gagné en %d coups et vous avez emporté %.2f € !\n" % (name_user, nb_coup_user, gain))
@@ -217,7 +190,34 @@ def nombreGagnant(nb_ordi, nb_coup, nb_coup_user, level):
         if nb_coup - nb_coup_user == 1:
             print('Il vous reste une chance !')
         nb_coup_user += 1
-        
+
+        # Si le nombre du coup du joueur est egale au coup max
+        if nb_coup_user > nb_coup:
+            print("Vous avez perdu ! Mon nombre est %s !" % (nb_ordi))
+            nb_coup_user = 1
+            gain = 0
+            perdu = True
+            stat_user = {}
+            if level == 1:
+                stat_user = {
+                    'mise' : mise,
+                    'gain' : gain,
+                    'gagne' : 0
+                }
+            elif level == 2:
+                stat_user = {
+                    'mise' : mise,
+                    'gain' : gain,
+                    'gagne' : 0
+            }
+            elif level == 3:
+                stat_user = {
+                    'mise' : mise,
+                    'gain' : gain,
+                    'gagne' : 0
+            }
+            break
+
     list = {"gain": gain, "level": level, "perdu": perdu, "stat" : stat_user}
     return list
 
@@ -296,7 +296,6 @@ if path.exists("data.json"):
                                     mise_max = partie['level_1']['mise']
                                 if partie['level_1']['gain'] > gain_max:
                                     gain_max = partie['level_1']['gain']
-                                
                         
                 print("Rebonjour %s, Content de vous revoir au Casino, prêt pour un nouveau challenge !" %(name_user))
                 print("Voici les statistiques, depuis la 1è fois ", data[0]['date'], " : ")
@@ -335,7 +334,6 @@ while jeu:
 
     solde -= mise
     
-
     # Fonction qui regarde si le nb a ete trouve
     data = nombreGagnant(nb_ordi, nb_coup, nb_coup_user, level)
     gain = data['gain']
@@ -357,8 +355,6 @@ while jeu:
         resultat_level_3 = resultat_partie
         partie = [{'level_1' : resultat_level_1}, {'level_2' : resultat_level_2}, {'level_3' : resultat_level_3}]
 
-    
-          
     if level <= 3:
         if solde <= 0:
             print("Vous êtes fauchés, il est temps de partir ...!")
