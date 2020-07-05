@@ -106,6 +106,9 @@ def credit_solde():
             solde = float(solde)
             if(solde < 1):
                 print(error)
+            elif solde < 0:
+                print("Vous êtes fauchés, il est de temps de partir ... !")
+                exit()
             else:
                 argent_solde = False
         except ValueError:
@@ -288,6 +291,9 @@ while jeu:
     mise = controle_mise(solde)
 
     solde -= mise
+    if solde == 0:
+        print("Vous êtes fauchés, il est temps de partir ...!")
+        exit()
 
     # Fonction qui regarde si le nb a ete trouve
     data = nombreGagnant(nb_ordi, nb_coup, nb_coup_user, level)
