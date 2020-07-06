@@ -10,6 +10,11 @@ import json
 import os.path
 from os import path
 from json.decoder import JSONDecodeError
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+import csv
 
 class TimeoutExpired(Exception):
     pass
@@ -56,19 +61,19 @@ def gainUser(coup, mise, level):
             gain = mise * 5
     if coup == 2:
         if level == 1:
-            gain = mise
+            gain = mise + mise * 1
         elif level == 2:
-            gain = mise * 1.25
+            gain = mise + mise * 1.25
         elif level == 3:
-            gain = mise * 1.5
+            gain = mise + mise * 1.5
     if coup >= 3:
         if level == 1:
-            gain = mise / 4
+            gain = mise + mise * 0.25
         elif level == 2:
-            gain = mise / 3
+            gain = mise + mise * 0.50
         elif level == 3:
-            gain = mise * 1
-    return float(gain)     
+            gain = mise + mise * 0.75
+    return float(gain)
 
 # Retour les regles du jeu
 def regle():
@@ -101,7 +106,7 @@ def credit_solde():
     error = "Le montant saisie n'est pas valide, solde minimum de 1€ requis : "
     argent_solde = True
     while argent_solde:
-        solde = input("Veuillez entrez votre solde de départ : ")
+        solde = input("Veuillez entrez votre solde de départ : \n-> ")
         try:
             solde = float(solde)
             if solde < 1:
@@ -141,7 +146,7 @@ def nombreGagnant(nb_ordi, nb_coup, nb_coup_user, level):
     while True:
         # On verifie si l'user a bien tape un nombre
         try:
-            nb_user = int(input("Alors mon nombre est : "))
+            nb_user = int(input("Alors mon nombre est : \n-> "))
         except ValueError:
             print("Je n'ai pas compris ce que vous avez deviné")
             continue
@@ -277,7 +282,9 @@ if path.exists("data.json"):
     mise_max = 0
     gain_max = 0
     try:
-        with open('data.json', 'r+') as json_file:
+        # Ouverture du fichier data.json
+        with open('data.json', 'r+') as json_file:            
+            
             try:
                 data = json.load(json_file)
                 # Recuperation de donnees
@@ -288,27 +295,35 @@ if path.exists("data.json"):
                         nb_fois_jeu = d['jeu']
                     if "partie" in d:
                         for partie in d['partie']:
-                            # print(partie)
                             if "level_1" in partie:
-                                # print(partie['level_1'])
-                                # print("mise ", partie['level_1']['mise'])
                                 if partie['level_1']['mise'] > mise_max:
                                     mise_max = partie['level_1']['mise']
                                 if partie['level_1']['gain'] > gain_max:
                                     gain_max = partie['level_1']['gain']
-                        
-                print("Rebonjour %s, Content de vous revoir au Casino, prêt pour un nouveau challenge !" %(name_user))
-                print("Voici les statistiques, depuis la 1è fois ", data[0]['date'], " : ")
-                print("\t - Vous avez deja joué à ce jeu : %d fois" %(nb_fois_jeu))
-                print("\t - Votre mise max est de  : %d euros" %(mise_max))
-                print("\t - Votre gain max est de  : %d euros" %(gain_max))
 
             except JSONDecodeError as e:
                 print("Erreur : ", e)
     except IOError as i:
         print("Erreur : ", i)
+    
+    print("Rebonjour %s, Content de vous revoir au Casino, prêt pour un nouveau challenge !" %(name_user))
+    print("Voici les statistiques, depuis la 1è fois ", data[0]['date'], " : ")
+    print("\t - Vous avez deja joué à ce jeu : %d fois" %(nb_fois_jeu))
+    print("\t - Votre mise max est de  : %d euros" %(mise_max))
+    print("\t - Votre gain max est de  : %d euros" %(gain_max))
+
+    df = pd.read_csv('test.csv')
+    df.head()
+    df.info
+    df["Lieu"].value_counts(normalize=True).plot(kind='pie')
+
 else:
-    name_user = input('Je suis Python. Quel est votre pseudo ? ')
+    if not path.exists('test.csv'):
+        with open('test.csv', 'w+') as csv_file:
+            writer = csv.DictWriter(csv_file, fieldnames=["jeu", "solde"])
+            writer.writeheader()
+
+    name_user = input('Je suis Python. Quel est votre pseudo ? \n-> ')
     print(regle())
     donnees = []
     
@@ -363,7 +378,7 @@ while jeu:
         # Si l'on souhaite quitter la partie ou pas
         continuer_jeu = ''
         try:
-            continuer_jeu = input_with_timeout('Souhaitez-vous continuer la partie (O/N) ? ', 10)
+            continuer_jeu = input_with_timeout('Souhaitez-vous continuer la partie (O/N) ? \n-> ', 10)
         except TimeoutExpired:
             print("Vous n'avez rien répondu. Vous finissez la partie avec %.2f €" % (solde))
             sys.exit()
@@ -395,11 +410,17 @@ while jeu:
                             'solde' : solde_debut,
                             'partie' : partie
                         })
+                    
+                    print(donnees[0])
+                    # Ecriture sur fichier test.csv 
+                    with open('test.csv', 'a+') as csv_file:
+                        cv_writer = csv.writer(csv_file)
+                        cv_writer.writerow([donnees['jeu'],donnees['solde']])
                     statistic(donnees)                    
                     jeu = False
                     break
                 else:
-                    continuer_jeu = input_with_timeout("Je ne comprends pas votre réponse. Souhaitez-vous continuer la partie (O/N) ?", 10)
+                    continuer_jeu = input_with_timeout("Je ne comprends pas votre réponse. Souhaitez-vous continuer la partie (O/N) ? \n-> ", 10)
                     continue
     elif level > 3:
         print("Bravo, vous avez gagné !")
@@ -418,6 +439,7 @@ while jeu:
                 'jeu' : 1,
                 'solde' : solde_debut,
                 'partie' : partie
-            })
+            })       
+
         statistic(donnees) 
         jeu = False
