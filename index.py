@@ -312,12 +312,14 @@ if path.exists("data.json"):
     print("\t - Votre mise max est de  : %d euros" %(mise_max))
     print("\t - Votre gain max est de  : %d euros" %(gain_max))
 
+    # Recuperation des donnees du fichier csv
     df = pd.read_csv('test.csv')
     df.head()
     df.info
     df["solde"].value_counts(normalize=True).plot(kind='pie')
 
 else:
+    # Creation du fichier .csv
     if not path.exists('test.csv'):
         with open('test.csv', 'w+') as csv_file:
             writer = csv.DictWriter(csv_file, fieldnames=["jeu", "solde"])
@@ -338,11 +340,9 @@ solde = credit_solde()
 solde_debut = solde
 print("Vous avez %.2f euros. Très bien ! Installez vous SVP à la table de paris." % (solde))
 
-
 while jeu:
     nb_coup = coupParLevel(level)
     nb_ordi = randint(1, 10)
-    print("nb_ordi", nb_ordi)
 
     # On regarde combien mise le joueur
     mise = controle_mise(solde)
@@ -381,7 +381,6 @@ while jeu:
             continuer_jeu = input_with_timeout('Souhaitez-vous continuer la partie (O/N) ? \n-> ', 10)
         except TimeoutExpired:
             print("Vous n'avez rien répondu. Vous finissez la partie avec %.2f €" % (solde))
-            sys.exit()
             exit()
         else:
             while True:
