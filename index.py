@@ -146,9 +146,19 @@ def nombreGagnant(nb_ordi, nb_coup, nb_coup_user, level):
     while True:
         # On verifie si l'user a bien tape un nombre
         try:
-            nb_user = int(input("Alors mon nombre est : \n-> "))
+            if level == 1:
+                # nb_user = int(input("Alors mon nombre est : \n-> "))
+                nb_user = int(input_with_timeout("(15s) Alors mon nombre est : \n-> ", 15))
+            elif level == 2:
+                nb_user = int(input_with_timeout("(10s) Alors mon nombre est : \n-> ", 10))
+            elif level == 3:
+                nb_user = int(input_with_timeout("(5s) Alors mon nombre est : \n-> ", 5))
         except ValueError:
             print("Je n'ai pas compris ce que vous avez deviné")
+            continue
+        except TimeoutExpired:
+            print("Vous avez mis trop de temps à répondre, vous perdez un coup ... !")
+            nb_coup_user += 1
             continue
 
         if nb_user < nb_ordi:
