@@ -332,7 +332,7 @@ else:
     # Creation du fichier .csv
     if not path.exists('test.csv'):
         with open('test.csv', 'w+') as csv_file:
-            writer = csv.DictWriter(csv_file, fieldnames=["jeu", "solde", "level max"])
+            writer = csv.DictWriter(csv_file, fieldnames=["jeu", "solde", "level_max"])
             writer.writeheader()
 
     name_user = input('Je suis Python. Quel est votre pseudo ? \n-> ')
@@ -353,7 +353,7 @@ print("Vous avez %.2f euros. Très bien ! Installez vous SVP à la table de pari
 while jeu:
     nb_coup = coupParLevel(level)
     nb_ordi = randint(1, 10)
-
+    # print(nb_ordi)
     # On regarde combien mise le joueur
     mise = controle_mise(solde)
 
@@ -371,14 +371,17 @@ while jeu:
     if level - 1 == 1 or level - 1 == 0:
         resultat_level_1 = resultat_partie
         partie = [{'level_1' : resultat_level_1}]
+        level_max = 1
 
     if level - 1 == 2 : 
         resultat_level_2 = resultat_partie
         partie = [{'level_1' : resultat_level_1}, {'level_2' : resultat_level_2}]
+        level_max = 2
 
     if level - 1 == 3 : 
         resultat_level_3 = resultat_partie
         partie = [{'level_1' : resultat_level_1}, {'level_2' : resultat_level_2}, {'level_3' : resultat_level_3}]
+        level_max = 3
 
     if level <= 3:
         if solde <= 0:
@@ -414,7 +417,7 @@ while jeu:
                         # Ecriture sur fichier test.csv 
                         with open('test.csv', 'a+') as csv_file:
                             cv_writer = csv.writer(csv_file)
-                            cv_writer.writerow([donnees['jeu'],donnees['solde']])
+                            cv_writer.writerow([donnees['jeu'],donnees['solde'], level_max])
                     else:
                         donnees.append({
                             'name' : name_user,
@@ -427,7 +430,7 @@ while jeu:
                             # Ecriture sur fichier test.csv 
                             with open('test.csv', 'a+') as csv_file:
                                 cv_writer = csv.writer(csv_file)
-                                cv_writer.writerow([d['jeu'], d['solde']])
+                                cv_writer.writerow([d['jeu'], d['solde'], level_max])
                         
                     statistic(donnees)                    
                     jeu = False
@@ -448,7 +451,7 @@ while jeu:
             # Ecriture sur fichier test.csv 
             with open('test.csv', 'a+') as csv_file:
                 cv_writer = csv.writer(csv_file)
-                cv_writer.writerow([donnees['jeu'],donnees['solde']])
+                cv_writer.writerow([donnees['jeu'],donnees['solde'], level_max])
         else:
             donnees.append({
                 'name' : name_user,
@@ -461,7 +464,7 @@ while jeu:
                 # Ecriture sur fichier test.csv 
                 with open('test.csv', 'a+') as csv_file:
                     cv_writer = csv.writer(csv_file)
-                    cv_writer.writerow([d['jeu'], d['solde']])
+                    cv_writer.writerow([d['jeu'], d['solde'], level_max])
 
         statistic(donnees) 
         jeu = False
