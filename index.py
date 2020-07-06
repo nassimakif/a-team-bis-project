@@ -315,7 +315,7 @@ if path.exists("data.json"):
     df = pd.read_csv('test.csv')
     df.head()
     df.info
-    df["Lieu"].value_counts(normalize=True).plot(kind='pie')
+    df["solde"].value_counts(normalize=True).plot(kind='pie')
 
 else:
     if not path.exists('test.csv'):
@@ -401,7 +401,11 @@ while jeu:
                             'jeu' : nb_fois_jeu + 1 ,
                             'solde' : solde_debut,
                             'partie' : partie
-                        }  
+                        }
+                        # Ecriture sur fichier test.csv 
+                        with open('test.csv', 'a+') as csv_file:
+                            cv_writer = csv.writer(csv_file)
+                            cv_writer.writerow([donnees['jeu'],donnees['solde']])
                     else:
                         donnees.append({
                             'name' : name_user,
@@ -410,12 +414,12 @@ while jeu:
                             'solde' : solde_debut,
                             'partie' : partie
                         })
-                    
-                    print(donnees[0])
-                    # Ecriture sur fichier test.csv 
-                    with open('test.csv', 'a+') as csv_file:
-                        cv_writer = csv.writer(csv_file)
-                        cv_writer.writerow([donnees['jeu'],donnees['solde']])
+                        for d in donnees:
+                            # Ecriture sur fichier test.csv 
+                            with open('test.csv', 'a+') as csv_file:
+                                cv_writer = csv.writer(csv_file)
+                                cv_writer.writerow([d['jeu'], d['solde']])
+                        
                     statistic(donnees)                    
                     jeu = False
                     break
@@ -432,6 +436,10 @@ while jeu:
                 'solde' : solde_debut,
                 'partie' : partie
             }  
+            # Ecriture sur fichier test.csv 
+            with open('test.csv', 'a+') as csv_file:
+                cv_writer = csv.writer(csv_file)
+                cv_writer.writerow([donnees['jeu'],donnees['solde']])
         else:
             donnees.append({
                 'name' : name_user,
@@ -440,6 +448,11 @@ while jeu:
                 'solde' : solde_debut,
                 'partie' : partie
             })       
+            for d in donnees:
+                # Ecriture sur fichier test.csv 
+                with open('test.csv', 'a+') as csv_file:
+                    cv_writer = csv.writer(csv_file)
+                    cv_writer.writerow([d['jeu'], d['solde']])
 
         statistic(donnees) 
         jeu = False
